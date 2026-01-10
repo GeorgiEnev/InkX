@@ -18,15 +18,18 @@
 	<Grid>
 		<Canvas x:Name="DrawCanvas" Background="Transparent" IsHitTestVisible="True"/>
 
-		<Border
-		HorizontalAlignment="Center"
-		VerticalAlignment="Top"
-		Margin="0,20,0,0"
-		Background="#A9A9A9"
-		BorderBrush="#818589"
-		BorderThickness="1"
-		CornerRadius="10"
-		Padding="12">
+		<Border x:Name="ToolBar"
+				PointerPressed="OnToolBarPointerPressed"
+				PointerMoved="OnToolBarPointerMoved"
+				PointerReleased="OnToolBarPointerReleased"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Top"
+				Margin="0,20,0,0"
+				Background="#A9A9A9"
+				BorderBrush="#818589"
+				BorderThickness="1"
+				CornerRadius="10"
+				Padding="12">
 
 			<StackPanel Orientation="Horizontal" Spacing="8">
 
@@ -60,6 +63,7 @@
 				<Button Content="Blue" Click="SetBlue"/>
 
 			</StackPanel>
+
 		</Border>
 
 	</Grid>

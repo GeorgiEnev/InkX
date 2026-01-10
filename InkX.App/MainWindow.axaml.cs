@@ -14,14 +14,23 @@ namespace InkX.App
         private double brushSize = 2;
         private IBrush currentBrush = Brushes.Red;
 
-        private const double minBrushSize = 2;
-        private const double maxBrushSize = 50;
-        private const double brushStep = 2;
+        private bool isToolBarVisible = true;
+        private bool isDraggingToolBar;
+        private Point dragStartPointer;
+        private Vector dragStartOffset;
+
+        private readonly TranslateTransform toolBarTransform = new TranslateTransform();
+
+        private const double MinBrushSize = 2;
+        private const double MaxBrushSize = 50;
+        private const double BrushStep = 2;
 
         public MainWindow()
         {
             InitializeComponent();
-            this.Focus();
+            Focus();
+
+            ToolBar.RenderTransform = toolBarTransform;
 
             DrawCanvas.PointerPressed += OnPointerPressed;
             DrawCanvas.PointerMoved += OnPointerMoved;
@@ -35,20 +44,18 @@ namespace InkX.App
 
         private void OnPointerMoved(object? sender, PointerEventArgs e)
         {
-            if (lastPoint == null)
+            if (lastPoint is null)
                 return;
 
             var currentPoint = e.GetPosition(DrawCanvas);
 
-            var line = new Line
+            DrawCanvas.Children.Add(new Line
             {
                 StartPoint = lastPoint.Value,
                 EndPoint = currentPoint,
                 Stroke = currentBrush,
                 StrokeThickness = brushSize
-            };
-
-            DrawCanvas.Children.Add(line);
+            });
 
             lastPoint = currentPoint;
         }
@@ -65,34 +72,21 @@ namespace InkX.App
                 DrawCanvas.Children.Clear();
                 lastPoint = null;
             }
-        }
-
-        private void UpdateBrushSizeUI()
-        {
-            BrushSizeInput.Text = brushSize.ToString();
+            else if (e.Key == Key.T)
+            {
+                isToolBarVisible = !isToolBarVisible;
+                ToolBar.IsVisible = isToolBarVisible;
+            }
         }
 
         private void IncreaseBrushSize(object? sender, RoutedEventArgs e)
         {
-            brushSize += brushStep;
-            if (brushSize > maxBrushSize)
-                brushSize = maxBrushSize;
-
-            UpdateBrushSizeUI();
+            SetBrushSize(brushSize + BrushStep);
         }
 
         private void DecreaseBrushSize(object? sender, RoutedEventArgs e)
         {
-            brushSize -= brushStep;
-            if (brushSize < minBrushSize)
-                brushSize = minBrushSize;
-
-            UpdateBrushSizeUI();
-        }
-
-        private void OnBrushSizeInputChanged(object? sender, RoutedEventArgs e)
-        {
-            ApplyBrushSizeFromInput();
+            SetBrushSize(brushSize - BrushStep);
         }
 
         private void OnBrushSizeInputKeyDown(object? sender, KeyEventArgs e)
@@ -101,22 +95,60 @@ namespace InkX.App
                 ApplyBrushSizeFromInput();
         }
 
+        private void OnBrushSizeInputChanged(object? sender, RoutedEventArgs e)
+        {
+            ApplyBrushSizeFromInput();
+        }
+
         private void ApplyBrushSizeFromInput()
         {
-            if (double.TryParse(BrushSizeInput.Text, out double value))
+            if (!double.TryParse(BrushSizeInput.Text, out var value))
             {
-                value = Math.Round(value / brushStep) * brushStep;
-
-                if (value < minBrushSize) value = minBrushSize;
-                if (value > maxBrushSize) value = maxBrushSize;
-
-                brushSize = value;
                 UpdateBrushSizeUI();
+                return;
             }
-            else
-            {
-                UpdateBrushSizeUI(); 
-            }
+
+            value = Math.Round(value / BrushStep) * BrushStep;
+            SetBrushSize(value);
+        }
+
+        private void SetBrushSize(double value)
+        {
+            brushSize = Math.Clamp(value, MinBrushSize, MaxBrushSize);
+            UpdateBrushSizeUI();
+        }
+
+        private void UpdateBrushSizeUI()
+        {
+            BrushSizeInput.Text = brushSize.ToString("0");
+        }
+
+        private void OnToolBarPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            isDraggingToolBar = true;
+
+            dragStartPointer = e.GetPosition(this);
+            dragStartOffset = new Vector(toolBarTransform.X, toolBarTransform.Y);
+
+            e.Pointer.Capture(ToolBar);
+        }
+
+        private void OnToolBarPointerMoved(object? sender, PointerEventArgs e)
+        {
+            if (!isDraggingToolBar)
+                return;
+
+            var currentPointer = e.GetPosition(this);
+            var delta = currentPointer - dragStartPointer;
+
+            toolBarTransform.X = dragStartOffset.X + delta.X;
+            toolBarTransform.Y = dragStartOffset.Y + delta.Y;
+        }
+
+        private void OnToolBarPointerReleased(object? sender, PointerReleasedEventArgs e)
+        {
+            isDraggingToolBar = false;
+            e.Pointer.Capture(null);
         }
 
         private void SetRed(object? sender, RoutedEventArgs e)
