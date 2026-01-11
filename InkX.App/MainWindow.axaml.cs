@@ -54,7 +54,9 @@ namespace InkX.App
                 StartPoint = lastPoint.Value,
                 EndPoint = currentPoint,
                 Stroke = currentBrush,
-                StrokeThickness = brushSize
+                StrokeThickness = brushSize,
+                StrokeLineCap = PenLineCap.Round,
+                StrokeJoin = PenLineJoin.Round
             });
 
             lastPoint = currentPoint;
