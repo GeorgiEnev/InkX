@@ -25,6 +25,8 @@ namespace InkX.App
         private const double MaxBrushSize = 50;
         private const double BrushStep = 2;
 
+        private bool isColorPopupOpen;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -151,6 +153,16 @@ namespace InkX.App
         {
             isDraggingToolBar = false;
             e.Pointer.Capture(null);
+        }
+
+        private void ToggleColorPopup(object? sender, RoutedEventArgs e)
+        {
+            isColorPopupOpen = !isColorPopupOpen;
+            ColorPopup.IsOpen = isColorPopupOpen;
+        }
+
+        private void OnColorPickerPressed(object? sender, PointerPressedEventArgs e)
+        {
         }
     }
 }
