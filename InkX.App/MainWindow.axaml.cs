@@ -170,8 +170,8 @@ namespace InkX.App
         {
             var pos = e.GetPosition(ColorPickerImage);
 
-            double s = pos.X / colorPickerSize;
-            double v = 1.0 - (pos.Y / colorPickerSize);
+            double s = pos.X / (colorPickerSize - 1);
+            double v = 1.0 - (pos.Y / (colorPickerSize - 1));
 
             s = Math.Clamp(s, 0, 1);
             v = Math.Clamp(v, 0, 1);
@@ -208,15 +208,16 @@ namespace InkX.App
 
                         buffer[y * colorPickerSize + x] =
                             ((uint)color.A << 24) |
-                            ((uint)color.B << 16) |
+                            ((uint)color.R << 16) |
                             ((uint)color.G << 8) |
-                            color.R;
+                             color.B;
                     }
                 }
             }
 
             ColorPickerImage.Source = bitmap;
         }
+
 
         private static Color HsvToColor(double h, double s, double v)
         {
@@ -242,7 +243,7 @@ namespace InkX.App
 
         private void OnHueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            pickerHue = e.NewValue;
+            pickerHue = 360.0 - e.NewValue;
             GenerateColorPickerBitmap();
         }
     }
