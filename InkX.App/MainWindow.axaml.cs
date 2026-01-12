@@ -31,6 +31,10 @@ namespace InkX.App
         private const int colorPickerSize = 180;
         private double pickerHue = 240;
 
+        private bool isPickingColor;
+        private double selectedS = 1.0;
+        private double selectedV = 1.0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -46,6 +50,7 @@ namespace InkX.App
 
         private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
+            CloseColorPopup();
             lastPoint = e.GetPosition(DrawCanvas);
         }
 
@@ -85,6 +90,9 @@ namespace InkX.App
             {
                 isToolBarVisible = !isToolBarVisible;
                 ToolBar.IsVisible = isToolBarVisible;
+
+                if (!isToolBarVisible)
+                    CloseColorPopup();
             }
         }
 
@@ -164,9 +172,33 @@ namespace InkX.App
         {
             isColorPopupOpen = !isColorPopupOpen;
             ColorPopup.IsOpen = isColorPopupOpen;
+
+            if (isColorPopupOpen)
+            {
+                UpdateColorPickerDot();
+            }
         }
 
         private void OnColorPickerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            isPickingColor = true;
+            UpdateColorFromPointer(e);
+        }
+
+        private void OnColorPickerMoved(object? sender, PointerEventArgs e)
+        {
+            if (!isPickingColor)
+                return;
+
+            UpdateColorFromPointer(e);
+        }
+
+        private void OnColorPickerReleased(object? sender, PointerReleasedEventArgs e)
+        {
+            isPickingColor = false;
+        }
+
+        private void UpdateColorFromPointer(PointerEventArgs e)
         {
             var pos = e.GetPosition(ColorPickerImage);
 
@@ -176,11 +208,21 @@ namespace InkX.App
             s = Math.Clamp(s, 0, 1);
             v = Math.Clamp(v, 0, 1);
 
+            selectedS = s;
+            selectedV = v;
+
             var color = HsvToColor(pickerHue, s, v);
             currentBrush = new SolidColorBrush(color);
 
-            ColorPopup.IsOpen = false;
-            isColorPopupOpen = false;
+            UpdateColorPickerDot();
+        }
+        private void UpdateColorPickerDot()
+        {
+            double x = selectedS * (colorPickerSize - 1);
+            double y = (1.0 - selectedV) * (colorPickerSize - 1);
+
+            Canvas.SetLeft(ColorPickerDot, x - ColorPickerDot.Width / 2);
+            Canvas.SetTop(ColorPickerDot, y - ColorPickerDot.Height / 2);
         }
 
         private void GenerateColorPickerBitmap()
@@ -218,7 +260,6 @@ namespace InkX.App
             ColorPickerImage.Source = bitmap;
         }
 
-
         private static Color HsvToColor(double h, double s, double v)
         {
             double c = v * s;
@@ -245,6 +286,16 @@ namespace InkX.App
         {
             pickerHue = 360.0 - e.NewValue;
             GenerateColorPickerBitmap();
+            UpdateColorPickerDot();
+        }
+
+        private void CloseColorPopup()
+        {
+            if (!isColorPopupOpen)
+                return;
+
+            ColorPopup.IsOpen = false;
+            isColorPopupOpen = false;
         }
     }
 }

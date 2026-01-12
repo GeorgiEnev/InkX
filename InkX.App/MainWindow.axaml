@@ -83,7 +83,7 @@
 			</StackPanel>
 		</Border>
 
-		<!-- Color Picker Popup (floating) -->
+		<!-- Color Picker Popup -->
 		<Popup x:Name="ColorPopup"
 			   PlacementTarget="{Binding #ColorButton}"
 			   Placement="Bottom">
@@ -94,14 +94,26 @@
 					CornerRadius="8"
 					Padding="8">
 
-				<StackPanel Orientation="Horizontal" Spacing="8">
+				<StackPanel Orientation="Horizontal" Spacing="12">
 
-					<!-- HSV square -->
-					<Image x:Name="ColorPickerImage"
-						   Width="180"
-						   Height="180"
-						   Stretch="Fill"
-						   PointerPressed="OnColorPickerPressed"/>
+					<Canvas Width="180" Height="180">
+
+						<!-- Color square -->
+						<Image x:Name="ColorPickerImage"
+							   Stretch="Fill"
+							   PointerPressed="OnColorPickerPressed"
+							   PointerMoved="OnColorPickerMoved"
+							   PointerReleased="OnColorPickerReleased"/>
+
+						<!-- Selection dot -->
+						<Ellipse x:Name="ColorPickerDot"
+								 Width="10"
+								 Height="10"
+								 Stroke="White"
+								 StrokeThickness="2"
+								 Fill="Transparent"
+								 IsHitTestVisible="False"/>
+					</Canvas>
 
 					<!-- Hue slider -->
 					<Slider x:Name="HueSlider"
@@ -115,6 +127,7 @@
 				</StackPanel>
 
 			</Border>
+
 		</Popup>
 
 	</Grid>
