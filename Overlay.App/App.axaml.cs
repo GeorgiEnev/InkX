@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace InkX.App
+namespace Overlay.App
 {
     public partial class App : Application
     {

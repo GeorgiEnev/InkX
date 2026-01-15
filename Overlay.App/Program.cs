@@ -1,7 +1,7 @@
 ﻿using System;
 using Avalonia;
 
-namespace InkX.App
+namespace Overlay.App
 {
     internal class Program
     {
