@@ -52,7 +52,15 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key == Key.C)
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            if (e.Key == Key.Z)
+                drawing.Undo();
+
+            if (e.Key == Key.Y)
+                drawing.Redo();
+        }
+        else if (e.Key == Key.C)
         {
             drawing.Clear();
         }
